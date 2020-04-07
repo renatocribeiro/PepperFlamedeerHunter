@@ -13,22 +13,22 @@ class WebsiteThread(threading.Thread):
         threading.Thread.__init__(self)
         self.agent = agent
         self.user = user
-        self._only_dump = only_dump
+        self.only_dump = only_dump
         self.debug = debug
         self.driver = init_driver(self.user["user"], self.agent.short, True if self.user["gmail_login"] else self.debug)
-        self._in_prod_page = False
-        self._collection = {}
+        self.in_prod_page = False
+        self.collection = {}
 
     def run(self):
         self.display("RUN")
-        self._login()
-        if self._only_dump:
+        self.login()
+        if self.only_dump:
             self.visit_collection()
         else:
             t_end = time.time() + 60*30
             now = time.time()
             while now < t_end:
-                self.find_that_renne()
+                self.find_that_flamedeer()
                 self.browse_website()
                 now = time.time()
         self.driver.close()
@@ -65,24 +65,24 @@ class WebsiteThread(threading.Thread):
                     all_cards[card_name] = cards_dict
 
             all_cards["time"] = time.time()
-            self._collection = all_cards
-            self._dump_collection()
+            self.collection = all_cards
+            self.dump_collection()
         except Exception as e:
             print(e)
 
-    def _dump_collection(self):
+    def dump_collection(self):
         folder = self.agent.short
         if not os.path.exists(folder):
             os.makedirs(folder)
         fname = "{short}/{uname}.json".format(short = self.agent.short, uname = self.user["user"])
 
         with open(fname, 'w') as fp:
-            json.dump(self._collection, fp)
+            json.dump(self.collection, fp)
 
     def display(self, other = ""):
         print("{time}:{user}:{site}:{other}".format(time=time.time(), user=self.user["user"], site=self.agent.short, other=other))
 
-    def _login(self):
+    def login(self):
         self.display("LOGIN")
         self.driver.get(self.agent.login)
         to_login = False
@@ -127,35 +127,35 @@ class WebsiteThread(threading.Thread):
     def browse_website(self):
 
         something_to_do = [
-                        self._scroll,
-                        self._nav_page,
-                        self._rand_deal]
+                        self.scroll,
+                        self.nav_page,
+                        self.rand_deal]
         t_end = time.time() + randint(1, 5)
         while time.time() < t_end:
             fcn = choice(something_to_do)
             fcn()
             self.display("BROWSE:{}".format(fcn.__name__))
-            self._refresh()
+            self.refresh()
             time.sleep(randint(1,2))
 
-    def _refresh(self):
+    def refresh(self):
         self.driver.get(self.agent.url)
 
 
-    def _rand_deal(self):
-        if self._in_prod_page:
+    def rand_deal(self):
+        if self.in_prod_page:
             self.driver.get(self.agent.url)
-            self._in_prod_page = False
+            self.in_prod_page = False
         else:
             try:
                 deal_btn = self.driver.find_elements_by_class_name("thread-title--list")
                 choice(deal_btn).click()
-                self._in_prod_page = True
+                self.in_prod_page = True
             except Exception as e:
                 pass
                 print(e)
 
-    def _nav_page(self):
+    def nav_page(self):
         next_prev_btns = [
             '//*[@id="pagination"]/nav/div/span[6]/a',
             '//*[@id="pagination"]/nav/div/span[3]/a'
@@ -167,10 +167,10 @@ class WebsiteThread(threading.Thread):
             print(e)
 
 
-    def _scroll(self):
+    def scroll(self):
         self.driver.execute_script("$('html,body').animate({{ scrollTop: {} }}, 'slow');".format(randint(0, 900)))
 
-    def find_that_renne(self):
+    def find_that_flamedeer(self):
         try:
             popup, link = None, None
             _min, _max = 5*60, 15*60

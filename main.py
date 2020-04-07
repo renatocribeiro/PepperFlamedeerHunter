@@ -2,7 +2,7 @@ import time
 from random import randint
 from WebsiteThread import *
 from Agents import *
-from users import *
+from Users import *
 import argparse
 
 AGENTS = [my_agent]
