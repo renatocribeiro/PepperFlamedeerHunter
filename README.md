@@ -13,7 +13,7 @@ Add the websites you want to use on `Agents.py` and the user(s) details on `User
 
 To launch the script use `python main.py`.
 
-Flags:
+### Flags
 
 `--only-dump` dumps the current collection(s) into `.json` files.
 
