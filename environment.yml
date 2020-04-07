@@ -1,0 +1,4 @@
+name: pepper
+dependencies:
+- python>=3.5
+- selenium
